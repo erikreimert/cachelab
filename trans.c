@@ -30,7 +30,14 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
   int blockRow, blockColumn; //used to go over block rows and columns
   int r, c; //used to iterate through the blocks in inner loops
   int temporary = 0, d = o; //d is for diagonal, temporary is a temporary variable
-  
+  if (n == 32) {
+    blockSize = 8; // choose B = 8 for optimized result.
+    //2 outer loops iterates accross blocks / 2 inner loops iterate through each block.
+    for (blockColumn < N; blockColumn += 8) {
+      
+    }
+  }
+
 }
 
 /*
