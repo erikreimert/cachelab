@@ -42,16 +42,21 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
               B[col][row] = A[row][col];
             }
             else {
+              // if row == column, it means we touched the diagonal of the square. For thte diagonal blocks, there are conflicts when accessing the same row of A and B. We ued 2 temporary variables, to store position and value for later assign. This way we can avoid having to re-access elements.
               temporary = A[row][col];
               d = row;
             }
           }
-          //
+          //Each traverse only has 1 element in diagonal. We assign it here, outside of loop.
+          if (blockRow == blockColumn) {
+            B[d][d]= temporary;
+          }
         }
       }
 
     }
   }
+  
 
 }
 
