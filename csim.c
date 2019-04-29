@@ -37,7 +37,7 @@ struct cacheSet{    // multi lines build up a set
 	struct set *lines;
 };
 
-struct cache{      // a cache has many sets
+struct cache{      // a cache has many sets thus we make it out of sets.
 	 struct cacheSet *sets;
 };
 
@@ -73,7 +73,7 @@ struct cache initCache(long long setNum, int numlines, long long blockSize)
 }
 
 void cleanFunction(struct cache myCache, long long setNum, int numlines, long long blockSize)
-{     //this function cleans up everything  when done because memory is expensive in cache and C doens't handle memory itself.
+{     //this function cleans up everything  when done because memory is expensive in cache and C doens't handle memory itself. And so we reset every value ourselves.
 
 
 
@@ -93,7 +93,7 @@ void cleanFunction(struct cache myCache, long long setNum, int numlines, long lo
 }
 
 int detectEmptyLine(struct cacheSet exampleSet, struct cacheparam param) {
-	// check is whether the line that is matched is empty or not
+	// check if whether the line that is matched is empty or not
 
 
 
