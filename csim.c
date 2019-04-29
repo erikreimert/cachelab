@@ -40,7 +40,7 @@ struct cache{      // a cache has many sets
 	 struct cacheSet *sets;
 };
 
-struct cache initCache(long long numberOfSets, int numberOfLines, long long sizeOfBlock)
+struct cache initCache(long long setNum, int numberOfLines, long long blockSize)
 {    // this function constructs the cache by the given information
 
 	struct cache newCache;
@@ -49,9 +49,9 @@ struct cache initCache(long long numberOfSets, int numberOfLines, long long size
 	int indexOfSet;
 	int indexOfLine;
 
-	newCache.sets = (struct cacheSet*) malloc(sizeof(struct cacheSet) * numberOfSets);      // do memory allocation in C
+	newCache.sets = (struct cacheSet*) malloc(sizeof(struct cacheSet) * setNum);      // do memory allocation in C
 
-	for (indexOfSet = 0; indexOfSet < numberOfSets; indexOfSet ++)
+	for (indexOfSet = 0; indexOfSet < setNum; indexOfSet ++)
 	{        // this loop loops through every line in every set and put the default value 0 inside every slot. (because we contain nothing in the cache)
 
 		set.lines =  (struct set *) malloc(sizeof(struct set) * numberOfLines);
@@ -71,13 +71,13 @@ struct cache initCache(long long numberOfSets, int numberOfLines, long long size
 
 }
 
-void cleanFunction(struct cache myCache, long long numberOfSets, int numberOfLines, long long sizeOfBlock)
+void cleanFunction(struct cache myCache, long long setNum, int numberOfLines, long long blockSize)
 {     //this function cleans up everything  when done because memory is expensive in cache and C doens't handle memory itself.
 
 
 
 	int indexOfSet;
-	for (indexOfSet = 0; indexOfSet < numberOfSets; indexOfSet ++)
+	for (indexOfSet = 0; indexOfSet < setNum; indexOfSet ++)
 	{
 		struct cacheSet set = myCache.sets[indexOfSet];
 
@@ -91,12 +91,12 @@ void cleanFunction(struct cache myCache, long long numberOfSets, int numberOfLin
 	}
 }
 
-int detectEmptyLine(struct cacheSet exampleSet, struct cacheparam exampleParameter) {
+int detectEmptyLine(struct cacheSet exampleSet, struct cacheparam param) {
 	// check is whether the line that is matched is empty or not
 
 
 
-	int numberOfLines = exampleParameter.E;
+	int numberOfLines = param.E;
 	int index;
 	struct set line;
 
@@ -109,12 +109,12 @@ int detectEmptyLine(struct cacheSet exampleSet, struct cacheparam exampleParamet
 	return -1;     // no line is available
 }
 
-int detectEvictLine(struct cacheSet exampleSet, struct cacheparam exampleParameter, int *usedLines) {
+int detectEvictLine(struct cacheSet exampleSet, struct cacheparam param, int *usedLines) {
 	// this function detects the line that can be evicted ( the least recently used line)
 
 
 
-	int numberOfLines = exampleParameter.E;
+	int numberOfLines = param.E;
 	int maxFreqUsage = exampleSet.lines[0].latestUsed;     //store usage frequency
 	int minFreqUsage = exampleSet.lines[0].latestUsed;	 // store usage frequency
 	int minFreqUsage_index = 0;
@@ -139,17 +139,17 @@ int detectEvictLine(struct cacheSet exampleSet, struct cacheparam exampleParamet
 }
 
 /* this is the most important operation*/
-struct cacheparam accessTheCacheData(struct cache myCache, struct cacheparam exampleParameter, memoryAddress address) {
+struct cacheparam accessTheCacheData(struct cache myCache, struct cacheparam param, memoryAddress addr) {
 		int indexOfLine;
 		int checkFullCache = 1;     // assume that cache is full
 
-		int numberOfLines = exampleParameter.E;
-		int previousHit = exampleParameter.hits;
+		int numberOfLines = param.E;
+		int previousHit = param.hits;
 
-		int tagSize = (64 - (exampleParameter.s + exampleParameter.b));    // take the valid tag out t = m-s-b
-		memoryAddress inputTag = address >> (exampleParameter.s + exampleParameter.b);
-		unsigned long long temp = address << (tagSize);
-		unsigned long long indexOfSet = temp >> (tagSize + exampleParameter.b);
+		int tagSize = (64 - (param.s + param.b));    // take the valid tag out t = m-s-b
+		memoryAddress inputTag = addr >> (param.s + param.b);
+		unsigned long long temp = addr << (tagSize);
+		unsigned long long indexOfSet = temp >> (tagSize + param.b);
 
   		struct cacheSet exampleSet = myCache.sets[indexOfSet];
 
@@ -162,7 +162,7 @@ struct cacheparam accessTheCacheData(struct cache myCache, struct cacheparam exa
 
 
 					exampleSet.lines[indexOfLine].latestUsed ++;  // update for later use of eviction
-					exampleParameter.hits ++;    // tag match -> raise hit
+					param.hits ++;    // tag match -> raise hit
 				}
 				// If the valid tag is different from 0 and the input tag matches that line tag, then it is safe for us to raise the hit because we did cache hit
 
@@ -175,17 +175,17 @@ struct cacheparam accessTheCacheData(struct cache myCache, struct cacheparam exa
 			//
 		}
 
-		if (previousHit == exampleParameter.hits) {   // if after the above loop nothing hit -> we miss
-			exampleParameter.misses++;    // raise miss
+		if (previousHit == param.hits) {   // if after the above loop nothing hit -> we miss
+			param.misses++;    // raise miss
 		} else {
-			return exampleParameter;
+			return param;
 		}
 		int *usedLines = (int*) malloc(sizeof(int) * 2);
-		int minFreqUsage_index = detectEvictLine(exampleSet, exampleParameter, usedLines);
+		int minFreqUsage_index = detectEvictLine(exampleSet, param, usedLines);
 
 		if (checkFullCache)     // if cache is full (checkFullCache!=0) do eviction
 		{
-			exampleParameter.evicts++;
+			param.evicts++;
 			exampleSet.lines[minFreqUsage_index].tag = inputTag;
 			exampleSet.lines[minFreqUsage_index].latestUsed = usedLines[1] + 1;
 
@@ -193,46 +193,46 @@ struct cacheparam accessTheCacheData(struct cache myCache, struct cacheparam exa
 
 		else        // else write to tge empty line
 	        {
-			int empty_index = detectEmptyLine(exampleSet, exampleParameter);
+			int empty_index = detectEmptyLine(exampleSet, param);
 			exampleSet.lines[empty_index].tag = inputTag;
 			exampleSet.lines[empty_index].valid = 1;
 			exampleSet.lines[empty_index].latestUsed = usedLines[1] + 1;
 		}
 
 		free(usedLines);
-		return exampleParameter;
+		return param;
 }
 
 int main(int argc, char **argv)
 {
 
 	struct cache myCache;
-	struct cacheparam exampleParameter;
-	bzero(&exampleParameter, sizeof(exampleParameter));  // read the report for this function's purpose
-	long long numberOfSets;
-	long long sizeOfBlock;
-	FILE *openTrace;
+	struct cacheparam param;
+	*memset(&param, 0, sizeof(param));
+	long long setNum;
+	long long blockSize;
+	FILE *trace;
 	char instructionInTraceFile;
-	memoryAddress address;
+	memoryAddress addr;
 	int size;
-	char *trace_file;
+	char *tFile;
 	char c;
-	/* this part takes in argument. More on how do I do this-> read report file */
+	/* takes arguments and directs to proper output*/
     while( (c=getopt(argc,argv,"s:E:b:t:vh")) != -1)
 	{
         switch(c)
 		{
         case 's':
-            exampleParameter.s = atoi(optarg);
+            param.s = atoi(optarg);
             break;
         case 'E':
-            exampleParameter.E = atoi(optarg);
+            param.E = atoi(optarg);
             break;
         case 'b':
-            exampleParameter.b = atoi(optarg);
+            param.b = atoi(optarg);
             break;
         case 't':
-            trace_file = optarg;
+            tFile = optarg;
             break;
         case 'h':
             exit(0);
@@ -240,31 +240,31 @@ int main(int argc, char **argv)
             exit(1);
         }
     }
-   /* end of take in arguments from command line */
 
- 	numberOfSets = pow(2.0, exampleParameter.s);   // get Number of set by 2^s
-	sizeOfBlock = pow(2.0, exampleParameter.b);  //  get sizeOfBlock by 2^b
-	exampleParameter.hits = 0;
-	exampleParameter.misses = 0;
-	exampleParameter.evicts = 0;
-	myCache = initCache (numberOfSets, exampleParameter.E, sizeOfBlock);
+
+ 	setNum = pow(2.0, param.s);   // get Number of set by 2^s
+	blockSize = pow(2.0, param.b);  //  get blockSize by 2^b
+	param.hits = 0;
+	param.misses = 0;
+	param.evicts = 0;
+	myCache = initCache (setNum, param.E, blockSize);
 
 	/* this part read file. More on how do I do this-> read report file */
-	openTrace  = fopen(trace_file, "r");
-	if (openTrace != NULL) {
-		while (fscanf(openTrace, " %c %llx,%d", &instructionInTraceFile, &address, &size) == 3) {
+	trace  = fopen(tFile, "r");
+	if (trace != NULL) {
+		while (fscanf(trace, " %c %llx,%d", &instructionInTraceFile, &addr, &size) == 3) {
 			switch(instructionInTraceFile) {
 				case 'I':
 					break;
 				case 'L':
-					exampleParameter = accessTheCacheData(myCache, exampleParameter, address);
+					param = accessTheCacheData(myCache, param, addr);
 					break;
 				case 'S':
-					exampleParameter = accessTheCacheData(myCache, exampleParameter, address);
+					param = accessTheCacheData(myCache, param, addr);
 					break;
 				case 'M':
-					exampleParameter = accessTheCacheData(myCache, exampleParameter, address);
-					exampleParameter = accessTheCacheData(myCache, exampleParameter, address);
+					param = accessTheCacheData(myCache, param, addr);
+					param = accessTheCacheData(myCache, param, addr);
 					break;
 				default:
 					break;
@@ -273,8 +273,8 @@ int main(int argc, char **argv)
 	}
 	/* end of read file */
 
-    printSummary(exampleParameter.hits, exampleParameter.misses, exampleParameter.evicts);
-	cleanFunction(myCache, numberOfSets, exampleParameter.E, sizeOfBlock);
-	fclose(openTrace);
+    printSummary(param.hits, param.misses, param.evicts);
+	cleanFunction(myCache, setNum, param.E, blockSize);
+	fclose(trace);
     return 0;
 }
