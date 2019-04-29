@@ -41,7 +41,7 @@ struct cache{      // a cache has many sets
 	 struct cacheSet *sets;
 };
 
-struct cache initCache(long long setNum, int numberOfLines, long long blockSize)
+struct cache initCache(long long setNum, int numlines, long long blockSize)
 {    // this function constructs the cache by the given information
 
 	struct cache newCache;
@@ -55,10 +55,10 @@ struct cache initCache(long long setNum, int numberOfLines, long long blockSize)
 	for (indexOfSet = 0; indexOfSet < setNum; indexOfSet ++)
 	{        // this loop loops through every line in every set and put the default value 0 inside every slot. (because we contain nothing in the cache)
 
-		set.lines =  (struct set *) malloc(sizeof(struct set) * numberOfLines);
+		set.lines =  (struct set *) malloc(sizeof(struct set) * numlines);
 		newCache.sets[indexOfSet] = set;
 
-		for (indexOfLine = 0; indexOfLine < numberOfLines; indexOfLine ++)
+		for (indexOfLine = 0; indexOfLine < numlines; indexOfLine ++)
 		{
 			line.latestUsed = 0;
 			line.valid = 0;
@@ -72,7 +72,7 @@ struct cache initCache(long long setNum, int numberOfLines, long long blockSize)
 
 }
 
-void cleanFunction(struct cache myCache, long long setNum, int numberOfLines, long long blockSize)
+void cleanFunction(struct cache myCache, long long setNum, int numlines, long long blockSize)
 {     //this function cleans up everything  when done because memory is expensive in cache and C doens't handle memory itself.
 
 
@@ -97,11 +97,11 @@ int detectEmptyLine(struct cacheSet exampleSet, struct cacheparam param) {
 
 
 
-	int numberOfLines = param.E;
+	int numlines = param.E;
 	int index;
 	struct set line;
 
-	for (index = 0; index < numberOfLines; index ++) {
+	for (index = 0; index < numlines; index ++) {
 		line = exampleSet.lines[index];
 		if (line.valid == 0) {    // one line is available
 			return index;
@@ -115,7 +115,7 @@ int detectEvictLine(struct cacheSet exampleSet, struct cacheparam param, int *us
 
 
 
-	int numberOfLines = param.E;
+	int numlines = param.E;
 	int maxFreqUsage = exampleSet.lines[0].latestUsed;     //store usage frequency
 	int minFreqUsage = exampleSet.lines[0].latestUsed;	 // store usage frequency
 	int minFreqUsage_index = 0;
@@ -123,7 +123,7 @@ int detectEvictLine(struct cacheSet exampleSet, struct cacheparam param, int *us
 
 
 	//very basic loop, compare each line with max & min to decide
-	for (indexOfLine = 1; indexOfLine < numberOfLines; indexOfLine ++) {
+	for (indexOfLine = 1; indexOfLine < numlines; indexOfLine ++) {
 		if (minFreqUsage > exampleSet.lines[indexOfLine].latestUsed) {
 			minFreqUsage_index = indexOfLine;
 			minFreqUsage = exampleSet.lines[indexOfLine].latestUsed;
@@ -144,7 +144,7 @@ struct cacheparam accessCache(struct cache myCache, struct cacheparam param, mem
 		int indexOfLine;
 		int checkFullCache = 1;     // assume that cache is full
 
-		int numberOfLines = param.E;
+		int numlines = param.E;
 		int previousHit = param.hits;
 
 		int tagSize = (64 - (param.s + param.b));    // take the valid tag out t = m-s-b
@@ -154,7 +154,7 @@ struct cacheparam accessCache(struct cache myCache, struct cacheparam param, mem
 
   		struct cacheSet exampleSet = myCache.sets[indexOfSet];
 
-		for (indexOfLine = 0; indexOfLine < numberOfLines; indexOfLine ++) 	{
+		for (indexOfLine = 0; indexOfLine < numlines; indexOfLine ++) 	{
 
 			if (exampleSet.lines[indexOfLine].valid) {   // check the valid tag != 0
 
