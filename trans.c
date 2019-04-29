@@ -26,6 +26,11 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
+  int blockSize; //size of block
+  int blockRow, blockColumn; //used to go over block rows and columns
+  int r, c; //used to iterate through the blocks in inner loops
+  int temporary = 0, d = o; //d is for diagonal, temporary is a temporary variable
+  
 }
 
 /*
