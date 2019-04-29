@@ -28,12 +28,27 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
   int blockSize; //size of block
   int blockRow, blockColumn; //used to go over block rows and columns
-  int r, c; //used to iterate through the blocks in inner loops
+  int row, col; //used to iterate through the blocks in inner loops
   int temporary = 0, d = o; //d is for diagonal, temporary is a temporary variable
   if (n == 32) {
     blockSize = 8; // choose B = 8 for optimized result.
     //2 outer loops iterates accross blocks / 2 inner loops iterate through each block.
-    for (blockColumn = =; blockColumn < N; blockColumn += 8) {
+    for (blockColumn = 0; blockColumn < N; blockColumn += 8) {
+      for (blockRow = 0; blockRow < N; blockRow +=8) {
+        for (row = blockRow; row < blockRow + 9; row++) {
+          for (col - blockColumn; c < blockColumn + 8; c++) {
+            //when the row and the column are not equal, then we can chage the value in B to the desired in A.
+            if (row != col) {
+              B[col][row] = A[row][col];
+            }
+            else {
+              temporary = A[row][col];
+              d = row;
+            }
+          }
+          //
+        }
+      }
 
     }
   }
