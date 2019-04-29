@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 	int size;
 	char *tFile;
 	char c;
-	/* takes arguments and directs to proper output*/
+	/* takes arguments and directs to proper output as an inputTag*/
     while( (c=getopt(argc,argv,"s:E:b:t:vh")) != -1)
 	{
         switch(c)
@@ -271,7 +271,7 @@ int main(int argc, char **argv)
 			}
 		}
 	}
-	/* end of read file */
+
 
     printSummary(param.hits, param.misses, param.evicts);
 	cleanFunction(myCache, setNum, param.E, blockSize);
