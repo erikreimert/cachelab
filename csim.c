@@ -7,6 +7,7 @@ Erik Reimert*/
 #include <stdio.h>
 #include <getopt.h>
 #include <strings.h>
+#include <string.h>
 #include <math.h>
 
 typedef unsigned long long int memoryAddress;
@@ -139,7 +140,7 @@ int detectEvictLine(struct cacheSet exampleSet, struct cacheparam param, int *us
 }
 
 /* this is the most important operation*/
-struct cacheparam accessTheCacheData(struct cache myCache, struct cacheparam param, memoryAddress addr) {
+struct cacheparam accessCache(struct cache myCache, struct cacheparam param, memoryAddress addr) {
 		int indexOfLine;
 		int checkFullCache = 1;     // assume that cache is full
 
@@ -208,7 +209,7 @@ int main(int argc, char **argv)
 
 	struct cache myCache;
 	struct cacheparam param;
-	*memset(&param, 0, sizeof(param));
+	memset(&param, 0, sizeof(param));
 	long long setNum;
 	long long blockSize;
 	FILE *trace;
@@ -249,7 +250,6 @@ int main(int argc, char **argv)
 	param.evicts = 0;
 	myCache = initCache (setNum, param.E, blockSize);
 
-	/* this part read file. More on how do I do this-> read report file */
 	trace  = fopen(tFile, "r");
 	if (trace != NULL) {
 		while (fscanf(trace, " %c %llx,%d", &instructionInTraceFile, &addr, &size) == 3) {
@@ -257,14 +257,14 @@ int main(int argc, char **argv)
 				case 'I':
 					break;
 				case 'L':
-					param = accessTheCacheData(myCache, param, addr);
+					param = accessCache(myCache, param, addr);
 					break;
 				case 'S':
-					param = accessTheCacheData(myCache, param, addr);
+					param = accessCache(myCache, param, addr);
 					break;
 				case 'M':
-					param = accessTheCacheData(myCache, param, addr);
-					param = accessTheCacheData(myCache, param, addr);
+					param = accessCache(myCache, param, addr);
+					param = accessCache(myCache, param, addr);
 					break;
 				default:
 					break;
