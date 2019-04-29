@@ -33,8 +33,8 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
   if (n == 32) {
     blockSize = 8; // choose B = 8 for optimized result.
     //2 outer loops iterates accross blocks / 2 inner loops iterate through each block.
-    for (blockColumn < N; blockColumn += 8) {
-      
+    for (blockColumn = =; blockColumn < N; blockColumn += 8) {
+
     }
   }
 
