@@ -213,7 +213,7 @@ int main(int argc, char **argv)
 	long long setNum;
 	long long blockSize;
 	FILE *trace;
-	char instructionInTraceFile;
+	char tfileInstruct;
 	memoryAddress addr;
 	int size;
 	char *tFile;
@@ -250,10 +250,10 @@ int main(int argc, char **argv)
 	param.evicts = 0;
 	myCache = initCache (setNum, param.E, blockSize);
 
-	trace  = fopen(tFile, "r");
+	trace  = fopen(tFile, "r"); //open tracefile and read it
 	if (trace != NULL) {
-		while (fscanf(trace, " %c %llx,%d", &instructionInTraceFile, &addr, &size) == 3) {
-			switch(instructionInTraceFile) {
+		while (fscanf(trace, " %c %llx,%d", &tfileInstruct, &addr, &size) == 3) {
+			switch(tfileInstruct) {
 				case 'I':
 					break;
 				case 'L':
