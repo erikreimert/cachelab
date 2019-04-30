@@ -58,7 +58,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
   }
   /* We are using blockSize = 4 here.
   2 levels of loops are used, we assign elements in each row idividually. Causes reduced misses. */
-  else if (N = 64) {
+  else if (N == 64) {
     int columnRun, rowRun,k, a, b, c, d, e, f, g, h; //variables
     //two loops to go through each row and column blocks
     for (columnRun = 0; columnRun < 64; columnRun += 8) {
