@@ -33,16 +33,16 @@ struct cacheparam {      // store all the  basic info of cache
 	int evicts;
 };
 
-struct cacheSet{    // multi lines build up a set
-	struct set *lines;
-};
-
-struct cache{      // a cache has many sets thus we make it out of sets.
+struct cache{      //make different sets of cache
 	 struct cacheSet *sets;
 };
 
+struct cacheSet{    // sets are made of many lines
+	struct set *lines;
+};
+
 struct cache initCache(long long setNum, int numlines, long long blockSize)
-{    // this function constructs the cache by the given information
+{    // struct for cache
 
 	struct cache newCache;
 	struct cacheSet set;
@@ -50,10 +50,10 @@ struct cache initCache(long long setNum, int numlines, long long blockSize)
 	int indexOfSet;
 	int indexOfLine;
 
-	newCache.sets = (struct cacheSet*) malloc(sizeof(struct cacheSet) * setNum);      // do memory allocation in C
+	newCache.sets = (struct cacheSet*) malloc(sizeof(struct cacheSet) * setNum);      // allocate memory for the cache
 
 	for (indexOfSet = 0; indexOfSet < setNum; indexOfSet ++)
-	{        // this loop loops through every line in every set and put the default value 0 inside every slot. (because we contain nothing in the cache)
+	{        // loop makes every spot in every set 0, because the cache is empty at first
 
 		set.lines =  (struct set *) malloc(sizeof(struct set) * numlines);
 		newCache.sets[indexOfSet] = set;
@@ -72,8 +72,8 @@ struct cache initCache(long long setNum, int numlines, long long blockSize)
 
 }
 
-void cleanFunction(struct cache myCache, long long setNum, int numlines, long long blockSize)
-{     //this function cleans up everything  when done because memory is expensive in cache and C doens't handle memory itself. And so we reset every value ourselves.
+void cacheEmpty(struct cache myCache, long long setNum, int numlines, long long blockSize)
+{     //clears up cache because memory is not infinite and C doesnt do it for us
 
 
 
@@ -90,24 +90,6 @@ void cleanFunction(struct cache myCache, long long setNum, int numlines, long lo
 	if (myCache.sets != NULL) {
 		free(myCache.sets);
 	}
-}
-
-int detectEmptyLine(struct cacheSet exampleSet, struct cacheparam param) {
-	// check if whether the line that is matched is empty or not
-
-
-
-	int numlines = param.E;
-	int index;
-	struct set line;
-
-	for (index = 0; index < numlines; index ++) {
-		line = exampleSet.lines[index];
-		if (line.valid == 0) {    // one line is available
-			return index;
-		}
-	}
-	return -1;     // no line is available
 }
 
 int detectEvictLine(struct cacheSet exampleSet, struct cacheparam param, int *usedLines) {
@@ -139,7 +121,26 @@ int detectEvictLine(struct cacheSet exampleSet, struct cacheparam param, int *us
 	return minFreqUsage_index;
 }
 
-/* this is the most important operation*/
+int detectEmptyLine(struct cacheSet exampleSet, struct cacheparam param) {
+	// check if whether the line that is matched is empty or not
+
+
+
+	int numlines = param.E;
+	int index;
+	struct set line;
+
+	for (index = 0; index < numlines; index ++) {
+		line = exampleSet.lines[index];
+		if (line.valid == 0) {    // one line is available
+			return index;
+		}
+	}
+	return -1;     // no line is available
+}
+
+
+
 struct cacheparam accessCache(struct cache myCache, struct cacheparam param, memoryAddress addr) {
 		int indexOfLine;
 		int checkFullCache = 1;     // assume that cache is full
@@ -163,9 +164,9 @@ struct cacheparam accessCache(struct cache myCache, struct cacheparam param, mem
 
 
 					exampleSet.lines[indexOfLine].latestUsed ++;  // update for later use of eviction
-					param.hits ++;    // tag match -> raise hit
+					param.hits ++;
 				}
-				// If the valid tag is different from 0 and the input tag matches that line tag, then it is safe for us to raise the hit because we did cache hit
+				// If the valid tag is different from 0 and the input tag matches that line tag, its a cache hit
 
 
 			} else if (!(exampleSet.lines[indexOfLine].valid) && (checkFullCache)) {
@@ -173,7 +174,7 @@ struct cacheparam accessCache(struct cache myCache, struct cacheparam param, mem
 
 				checkFullCache = 0;	    // reset this to 0	because there is empty space left.
 			}
-			//
+
 		}
 
 		if (previousHit == param.hits) {   // if after the above loop nothing hit -> we miss
@@ -274,7 +275,7 @@ int main(int argc, char **argv)
 
 
     printSummary(param.hits, param.misses, param.evicts);
-	cleanFunction(myCache, setNum, param.E, blockSize);
+	cacheEmpty(myCache, setNum, param.E, blockSize);
 	fclose(trace);
     return 0;
 }
