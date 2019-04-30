@@ -29,8 +29,8 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
   int blockSize; //size of block
   int blockRow, blockColumn; //used to go over block rows and columns
   int row, col; //used to iterate through the blocks in inner loops
-  int temporary = 0, d = o; //d is for diagonal, temporary is a temporary variable
-  if (n == 32) {
+  int temporary = 0, d = 0; //d is for diagonal, temporary is a temporary variable
+  if (N == 32) {
     blockSize = 8; // choose B = 8 for optimized result.
     //2 outer loops iterates accross blocks / 2 inner loops iterate through each block.
     for (blockColumn = 0; blockColumn < N; blockColumn += 8) {
@@ -81,7 +81,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
           B[rowRun+2][columnRun + k + 0] = c; //correct
           B[rowRun+2][columnRun + k + 4] = h; //incorrect
           B[rowRun+3][columnRun + k + 0] = d; //correct
-          B[rowRun+3][columnRun + k + 4] = e  //incorrect
+          B[rowRun+3][columnRun + k + 4] = e;  //incorrect
         }
         //moving sub-matrix b to sub- matrix c, and moving A->B for sub-matrix b and move matrix d
         // Now that we have dealth with the first 4 col 8 row of A. We know deal with the incorrect assignments.
@@ -144,7 +144,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
         for (blockRow = 0; blockRow < N; blockRow += blockSize) {
           //not all blocks will be square. Have to check for row < N and column < main
           for (row = blockRow; (row < N) && (row < blockRow + blockSize) ; row ++) {
-            for ( col = blockColumn; (col < M) && (col < blockColumn + blockSize;) col ++) {
+            for ( col = blockColumn; (col < M) && (col < blockColumn + blockSize); col ++) {
               //row and column are not same
               if (row != col) {
                 B[col][row] = A[row][col];
