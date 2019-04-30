@@ -35,7 +35,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
     //2 outer loops iterates accross blocks / 2 inner loops iterate through each block.
     for (blockColumn = 0; blockColumn < N; blockColumn += 8) {
       for (blockRow = 0; blockRow < N; blockRow +=8) {
-        for (row = blockRow; row < blockRow + 9; row++) {
+        for (row = blockRow; row < blockRow + 8; row++) {
           for (col = blockColumn; col < blockColumn + 8; col++) {
             //when the row and the column are not equal, then we can chage the value in B to the desired in A.
             if (row != col) {
