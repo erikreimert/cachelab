@@ -56,14 +56,14 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 
     }
   }
-  /* We are using blockSize = 4 here.
-  2 levels of loops are used, we assign elements in each row idividually. Causes reduced misses. */
+  //2 levels of loops are used, we assign elements in each row idividually. Causes reduced misses.
   else if (N == 64) {
+
     for (blockColumn = 0; blockColumn < N; blockColumn +=4) {
       for (blockRow = 0; blockRow < N; blockRow +=4) {
-        for (row =blockRow; row < blockRow + 4; row++) {
+        for (row =blockRow; row < blockRow + 4; row++) { //iterate over the rows
           for (col = blockColumn; col < blockColumn + 4; col++) {
-            if (row != col) {
+            if (row != col) { //if not diagonal
               B[col][row] = A[row][col];
             }
             else {
@@ -77,84 +77,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
         }
       }
     }
-    /*
-    int columnRun, rowRun,k, a, b, c, d, e, f, g, h; //variables
-    //two loops to go through each row and column blocks
-    for (columnRun = 0; columnRun < 64; columnRun += 8) {
-      for (rowRun = 0; rowRun < 64 ; rowRun += 8 ) {
-        //First loop is for a 4 column 8 row of A. Tn the loop we use supporting variables to store all elements of a row. We then try to transpose them with the right positions in B.
-        for (k = 0; k <4; k++) {
-          a = A[columnRun + k][rowRun+0];
-          b = A[columnRun + k][rowRun+1];
-          c = A[columnRun + k][rowRun+2];
-          d = A[columnRun + k][rowRun+3];
-          e = A[columnRun + k][rowRun+4];
-          f = A[columnRun + k][rowRun+5];
-          g = A[columnRun + k][rowRun+6];
-          h = A[columnRun + k][rowRun+7];
-          // Not all elements will be transposed correctly. So, elements which can't be transposed correctly will be stored in another location for later use.
-          B[rowRun+0][columnRun + k + 0] = a; //correct
-          B[rowRun+0][columnRun + k + 4] = f; //incorrect
-          B[rowRun+1][columnRun + k + 0] = b; //correct
-          B[rowRun+1][columnRun + k + 4] = g; // incorrect
-          B[rowRun+2][columnRun + k + 0] = c; //correct
-          B[rowRun+2][columnRun + k + 4] = h; //incorrect
-          B[rowRun+3][columnRun + k + 0] = d; //correct
-          B[rowRun+3][columnRun + k + 4] = e;  //incorrect
-        }
-        //moving sub-matrix b to sub- matrix c, and moving A->B for sub-matrix b and move matrix d
-        // Now that we have dealth with the first 4 col 8 row of A. We know deal with the incorrect assignments.
-        a = A[columnRun + 4][rowRun+4];
-        b = A[columnRun +5][rowRun+4];
-        c = A[columnRun + 6][rowRun+4];
-        d = A[columnRun + 7][rowRun+4];
-        e = A[columnRun + 4][rowRun+3];
-        f = A[columnRun + 5][rowRun+3];
-        g = A[columnRun + 6][rowRun+3];
-        h = A[columnRun + 7][rowRun+3];
 
-        B[rowRun + 4][columnRun + 0] = B[rowRun + 3][columnRun + 4];
-        B[rowRun + 4][columnRun + 4] = a;
-        B[rowRun + 3][columnRun + 4]= e;
-        B[rowRun + 4][columnRun + 1]= B[rowRun + 3][columnRun + 5];
-        B[rowRun + 4][columnRun + 5] = b;
-        B[rowRun + 3][columnRun + 5] = f;
-        B[rowRun + 4][columnRun + 2] = B[rowRun + 3][columnRun + 6];
-        B[rowRun + 4][columnRun + 6] = c;
-        B[rowRun + 3][columnRun + 6] = g;
-        B[rowRun + 4][columnRun + 3] = B[rowRun + 3][columnRun + 7];
-        B[rowRun + 4][columnRun + 7] = d;
-        B[rowRun + 3][columnRun + 7] = h;
-
-        //this loop deal with remaining elements.
-        for (k = 0;k<3;k++) {
-          a = A[columnRun + 4][rowRun + 5 + k];
-          b = A[columnRun + 5][rowRun + 5 + k];
-          c = A[columnRun + 6][rowRun + 5 + k];
-          d = A[columnRun + 7][rowRun + 5 + k];
-          e = A[columnRun + 4][rowRun + k];
-          f = A[columnRun + 5][rowRun + k];
-          e = A[columnRun + 6][rowRun + k];
-          e = A[columnRun + 7][rowRun + k];
-
-
-          B[rowRun + 5 + k][columnRun + 0] = B[rowRun+k][columnRun + 4];
-          B[rowRun + 5 + k][columnRun + 4] = a;
-          B[rowRun + k][columnRun + 4] = e;
-          B[rowRun + 5 + k][columnRun + 1] = B[rowRun + k][columnRun + 5];
-          B[rowRun + 5 + k][columnRun + 5] = b;
-          B[rowRun + k][columnRun + 5] = f;
-          B[rowRun + 5 + k][columnRun + 2] = B[rowRun + k][columnRun + 6];
-          B[rowRun + 5 + k][columnRun + 6] = c;
-          B[rowRun + k][columnRun + 6] = g;
-          B[rowRun + 5 + k][columnRun + 3] =B[rowRun + k][columnRun + 7];
-          B[rowRun + 5 + k][columnRun + 7] = d;
-          B[rowRun + k][columnRun + 7] = h;
-
-        }
-        }
-      }
-      */
     }
     //Random size. We use blockSie = 16.
     //2 levels of loops are used to iterate over blocks in column major iteration and 2  levels are ued to go through the blocks.
