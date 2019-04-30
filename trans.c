@@ -59,6 +59,24 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
   /* We are using blockSize = 4 here.
   2 levels of loops are used, we assign elements in each row idividually. Causes reduced misses. */
   else if (N == 64) {
+    for (blockColumn = 0; blockColumn < N; blockColumn +=4 {
+      for (blockRow = 0; blockRow < N; blockRow +=4) {
+        for (row =blockRow; row < blockRow + 4; row++) {
+          for (col = blockColumn; col < blockColumn + 4; col++) {
+            if (row != col) {
+              B[col][row] = A[row][col];
+            }
+            else {
+              temporary = A[row][col];
+              d = row;
+            }
+          }
+          if (blockRow == blockColumn) {
+            B[d][d] = temporary;
+          }
+        }
+      }
+    /*
     int columnRun, rowRun,k, a, b, c, d, e, f, g, h; //variables
     //two loops to go through each row and column blocks
     for (columnRun = 0; columnRun < 64; columnRun += 8) {
@@ -135,6 +153,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
         }
         }
       }
+      */
     }
     //Random size. We use blockSie = 16.
     //2 levels of loops are used to iterate over blocks in column major iteration and 2  levels are ued to go through the blocks.
